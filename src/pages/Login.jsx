@@ -28,7 +28,8 @@ function Login() {
     console.log(res.data)
     const userInfo = {
       id: res.data.id,
-      email: res.data.email
+      email: res.data.email,
+      role: res.data.role
     }
     localStorage.setItem('accessToken', res.data.accessToken)
     localStorage.setItem('refreshToken', res.data.refreshToken)
