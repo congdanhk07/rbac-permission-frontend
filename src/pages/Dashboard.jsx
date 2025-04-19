@@ -7,18 +7,27 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import authorizedAxiosInstance from '~/utils/authorizedAxios'
 import { API_ROOT, TABS_URL } from '~/utils/constants'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { handleLogoutAPI } from '~/apis'
-import congdanhBackground from '../assets/congdanh-bg-img.jpg'
+import congdanhBackground from '~/assets/congdanh-bg-img.jpg'
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-
 function Dashboard() {
-  const [user, setUser] = useState(null)
-  const [tab, setTab] = useState(TABS_URL.DASHBOARD)
   const navigate = useNavigate()
+  const location = useLocation()
+  const [user, setUser] = useState(null)
+  const [tab, setTab] = useState(
+    // Lấy tab mặc định dựa vào pathname -> Optimize được chuyện dùng useEffect để hiển thị tab mặc định
+    () => {
+      let activeTab = TABS_URL.DASHBOARD
+      Object.values(TABS_URL).forEach((tab) => {
+        if (location.pathname.includes(tab)) activeTab = tab
+      })
+      return activeTab
+    }
+  )
 
   const handleChange = (event, newTab) => {
     setTab(newTab)
@@ -36,9 +45,7 @@ function Dashboard() {
   }
   useEffect(() => {
     const fetchData = async () => {
-      const res = await authorizedAxiosInstance.get(
-        `${API_ROOT}/v1/dashboards/access`
-      )
+      const res = await authorizedAxiosInstance.get(`${API_ROOT}/v1/dashboards/access`)
       setUser(res.data)
     }
     fetchData()
@@ -70,7 +77,7 @@ function Dashboard() {
         display: 'flex',
         justifyContent: 'center',
         flexDirection: 'column',
-        padding: '0 1em',
+        padding: '1em',
         gap: 2
       }}
     >
@@ -88,29 +95,17 @@ function Dashboard() {
         />
       </Box>
 
-      <Alert
-        severity='info'
-        sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
-      >
+      <Alert severity='info' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
         Đây là trang Dashboard sau khi user:&nbsp;
-        <Typography
-          variant='span'
-          sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
-        >
+        <Typography variant='span' sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>
           {user?.email}
         </Typography>
         &nbsp; đăng nhập thành công thì mới cho truy cập vào.
       </Alert>
 
-      <Alert
-        severity='success'
-        sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}
-      >
+      <Alert severity='success' sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
         Role hiện tại sau khi đăng nhập:&nbsp;
-        <Typography
-          variant='span'
-          sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}
-        >
+        <Typography variant='span' sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>
           {user?.role}
         </Typography>
       </Alert>
@@ -120,11 +115,11 @@ function Dashboard() {
         <TabContext value={tab}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <TabList onChange={handleChange} aria-label='lab API tabs example'>
-              <Tab label='Dashboard' value={TABS_URL.DASHBOARD} />
-              <Tab label='Support' value={TABS_URL.SUPPORT} />
-              <Tab label='Message' value={TABS_URL.MESSAGE} />
-              <Tab label='Revenue' value={TABS_URL.REVENUE} />
-              <Tab label='Admin Tools' value={TABS_URL.ADMIN_TOOLS} />
+              <Tab label='Dashboard' value={TABS_URL.DASHBOARD} component={Link} to={'/dashboard'} />
+              <Tab label='Support' value={TABS_URL.SUPPORT} component={Link} to={'/support'} />
+              <Tab label='Message' value={TABS_URL.MESSAGE} component={Link} to={'/message'} />
+              <Tab label='Revenue' value={TABS_URL.REVENUE} component={Link} to={'/revenue'} />
+              <Tab label='Admin Tools' value={TABS_URL.ADMIN_TOOLS} component={Link} to={'/admin-tools'} />
             </TabList>
           </Box>
           <TabPanel value={TABS_URL.DASHBOARD}>
